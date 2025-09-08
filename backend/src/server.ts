@@ -328,7 +328,7 @@ app.post('/orders', async (req, res) => {
   const gearMap: Record<string, any> = {};
   if (gearIds.length) {
     const gears = await prisma.gearItem.findMany({ where: { id: { in: gearIds as string[] } } });
-    gears.forEach(g=> gearMap[g.id] = g);
+    gears.forEach((g: any) => gearMap[g.id] = g);
   }
   let total = 0; let depositTotal = 0;
   const lineData: any[] = [];

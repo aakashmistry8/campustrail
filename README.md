@@ -205,6 +205,67 @@ URLs:
 
 ---
 
+## 🚀 Deployment
+
+CampusTrail can be deployed to various hosting platforms. See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for detailed instructions.
+
+### Quick Deploy Options
+
+**Railway (Recommended for Full-Stack):**
+```bash
+npm run deploy:railway
+```
+
+**Vercel (Frontend + Serverless Backend):**
+```bash
+npm run deploy:vercel
+```
+
+**Docker (Self-Hosted):**
+```bash
+npm run deploy:docker
+```
+
+**Local Development:**
+```bash
+./start.sh
+# or
+npm run dev:docker  # with Docker Compose
+```
+
+### Environment Setup
+
+1. Copy production environment templates:
+```bash
+cp backend/.env.production backend/.env
+cp frontend/.env.production frontend/.env
+```
+
+2. Update the `.env` files with your actual values:
+   - Database URL (PostgreSQL for production)
+   - JWT secret
+   - API endpoints
+   - Email configuration (optional)
+
+3. For database setup:
+```bash
+cd backend
+npx prisma migrate deploy  # for production
+# or
+npx prisma db push        # for development
+```
+
+### Health Checks
+
+After deployment, verify your setup:
+```bash
+./check-health.sh https://your-domain.com
+```
+
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for platform-specific guides and troubleshooting.
+
+---
+
 ## 🔌 API Glance
 
 ---

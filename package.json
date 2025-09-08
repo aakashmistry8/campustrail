@@ -1,0 +1,39 @@
+{
+  "name": "campustrail",
+  "version": "0.1.0",
+  "description": "CampusTrail - Peer travel hub for campus communities",
+  "private": true,
+  "scripts": {
+    "install:all": "cd frontend && npm install && cd ../backend && npm install",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:all": "npm run build:backend && npm run build:frontend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:docker": "docker-compose up --build",
+    "deploy:railway": "./deploy/deploy.sh railway",
+    "deploy:vercel": "./deploy/deploy.sh vercel",
+    "deploy:netlify": "./deploy/deploy.sh netlify",
+    "deploy:docker": "./deploy/deploy.sh docker",
+    "typecheck": "cd frontend && npm run typecheck",
+    "clean": "rm -rf frontend/dist backend/dist frontend/node_modules backend/node_modules"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aakashmistry8/campustrail.git"
+  },
+  "keywords": [
+    "travel",
+    "campus",
+    "peer-to-peer",
+    "gear-rental",
+    "itinerary",
+    "companion-matching"
+  ],
+  "author": "Aakash Mistry",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
