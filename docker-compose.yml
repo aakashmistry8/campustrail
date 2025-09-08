@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: campustrail
+      POSTGRES_USER: campustrail
+      POSTGRES_PASSWORD: campustrail
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: 
+      context: ./backend
+    environment:
+      DATABASE_URL: postgresql://campustrail:campustrail@postgres:5432/campustrail
+      JWT_SECRET: dev-jwt-secret-change-in-production
+      PORT: 4000
+      NODE_ENV: development
+      DEV_OTP_PREVIEW: "1"
+      LOG_DISABLE_MSSQL: "1"
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: 
+      context: ./frontend
+    environment:
+      VITE_API_BASE: http://localhost:4000
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
