@@ -1,0 +1,229 @@
+// Prisma schema for CampusTrail (minimal schema aligned with generated client)
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id                String             @id @default(cuid())
+    email             String             @unique
+    name              String?
+    batch             String?
+    passwordHash      String?
+    signupOtp         String?
+    signupOtpExpires  DateTime?
+    resetToken        String?
+    resetTokenExpires DateTime?
+    createdAt         DateTime           @default(now())
+    updatedAt         DateTime           @updatedAt
+    gearItems         GearItem[]
+    rentals           GearRental[]       @relation("RentalRenter")
+    itineraries       Itinerary[]
+    itineraryJoins    ItineraryJoin[]
+    companionRequests CompanionRequest[]
+    interests         UserInterest[]
+    raisedDisputes    RentalDispute[]    @relation("UserRaisedDisputes")
+    writtenReviews    Review[]           @relation("AuthorReviews")
+    receivedReviews   Review[]           @relation("UserReviews")
+}
+
+model GearItem {
+    id            String       @id @default(cuid())
+    owner         User         @relation(fields: [ownerId], references: [id])
+    ownerId       String
+    title         String
+    description   String
+    dailyRate     Int
+    depositAmount Int
+    condition     String
+    status        String       @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+    bufferHours   Int          @default(12)
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+    rentals       GearRental[]
+    photos        GearPhoto[]
+    reviews       Review[]
+}
+
+model GearRental {
+    id                String    @id @default(cuid())
+    gearItem          GearItem  @relation(fields: [gearItemId], references: [id])
+    gearItemId        String
+    renter            User      @relation("RentalRenter", fields: [renterId], references: [id])
+    renterId          String
+    startDate         DateTime
+    endDate           DateTime
+    status            String    @default("REQUESTED")
+    depositHeld       Int       @default(0)
+    depositStatus     String    @default("PENDING") // PENDING | HELD | RELEASED | CAPTURED | REFUNDED
+    pickupConfirmedAt DateTime?
+    returnConfirmedAt DateTime?
+    rentalMode        String    @default("DAY")
+    createdAt         DateTime  @default(now())
+    updatedAt         DateTime  @updatedAt
+    payments          Payment[]
+    disputes          RentalDispute[]
+}
+
+model Itinerary {
+    id           String              @id @default(cuid())
+    creator      User                @relation(fields: [creatorId], references: [id])
+    creatorId    String
+    title        String
+    destination  String
+    description  String
+    startDate    DateTime
+    endDate      DateTime
+    maxPeople    Int
+    costEstimate Int?
+    status       String              @default("OPEN")
+    joins        ItineraryJoin[]
+    interests    ItineraryInterest[]
+    reviews      Review[]
+    createdAt    DateTime            @default(now())
+    updatedAt    DateTime            @updatedAt
+}
+
+model ItineraryJoin {
+    id          String    @id @default(cuid())
+    itinerary   Itinerary @relation(fields: [itineraryId], references: [id])
+    itineraryId String
+    user        User      @relation(fields: [userId], references: [id])
+    userId      String
+    role        String    @default("PARTICIPANT")
+    status      String    @default("PENDING")
+    message     String?
+    createdAt   DateTime  @default(now())
+}
+
+model CompanionRequest {
+    id          String                     @id @default(cuid())
+    user        User                       @relation(fields: [userId], references: [id])
+    userId      String
+    destination String
+    startDate   DateTime
+    endDate     DateTime
+    flexibility String? // e.g., +/- days
+    notes       String?
+    status      String                     @default("ACTIVE")
+    createdAt   DateTime                   @default(now())
+    updatedAt   DateTime                   @updatedAt
+    interests   CompanionRequestInterest[]
+    reviews     Review[]
+}
+
+// Join / helper tables
+
+model UserInterest {
+    id     String @id @default(cuid())
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
+    value  String
+}
+
+model GearPhoto {
+    id         String   @id @default(cuid())
+    gearItem   GearItem @relation(fields: [gearItemId], references: [id])
+    gearItemId String
+    url        String
+}
+
+// Payment records (simulated gateway state)
+model Payment {
+    id          String     @id @default(cuid())
+    rental      GearRental @relation(fields: [rentalId], references: [id])
+    rentalId    String
+    type        String     // DEPOSIT | RENTAL_FEE | ADJUSTMENT
+    amount      Int
+    status      String     @default("CREATED") // CREATED | HELD | CAPTURED | RELEASED | REFUNDED | FAILED
+    providerRef String?
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+}
+
+// Dispute for a rental (e.g., damage claims)
+model RentalDispute {
+    id             String     @id @default(cuid())
+    rental         GearRental @relation(fields: [rentalId], references: [id])
+    rentalId       String
+    raisedBy       User       @relation("UserRaisedDisputes", fields: [raisedById], references: [id])
+    raisedById     String
+    reason         String
+    description    String?
+    status         String     @default("OPEN") // OPEN | UNDER_REVIEW | RESOLVED_RELEASE | RESOLVED_CAPTURE | REJECTED
+    resolutionNotes String?
+    createdAt      DateTime   @default(now())
+    updatedAt      DateTime   @updatedAt
+}
+
+// Generic reviews for gear, itineraries, or users (companions / owners)
+model Review {
+    id            String    @id @default(cuid())
+    author        User      @relation("AuthorReviews", fields: [authorId], references: [id])
+    authorId      String
+    gearItem      GearItem? @relation(fields: [gearItemId], references: [id])
+    gearItemId    String?
+    itinerary     Itinerary? @relation(fields: [itineraryId], references: [id])
+    itineraryId   String?
+    companionRequest CompanionRequest? @relation(fields: [companionRequestId], references: [id])
+    companionRequestId String?
+    targetUser    User?      @relation("UserReviews", fields: [targetUserId], references: [id])
+    targetUserId  String?
+    rating        Int
+    title         String?
+    body          String
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+
+    @@index([gearItemId])
+    @@index([itineraryId])
+    @@index([companionRequestId])
+    @@index([targetUserId])
+}
+
+// Orders (snapshot of gear items purchased/checked out)
+model Order {
+    id        String      @id @default(cuid())
+    user      User        @relation(fields: [userId], references: [id])
+    userId    String
+    status    String      @default("CREATED") // CREATED | PAID | CANCELLED
+    total     Int         @default(0) // sum of line extended prices
+    depositTotal Int      @default(0) // sum of deposits (if applicable)
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+    items     OrderItem[]
+
+    @@index([userId])
+}
+
+model OrderItem {
+    id          String    @id @default(cuid())
+    order       Order     @relation(fields: [orderId], references: [id])
+    orderId     String
+    gearItem    GearItem? @relation(fields: [gearItemId], references: [id])
+    gearItemId  String?
+    title       String    // snapshot title
+    unitPrice   Int
+    depositAmount Int     @default(0)
+    quantity    Int       @default(1)
+    lineTotal   Int       // unitPrice * quantity
+}
+
+model ItineraryInterest {
+    id          String    @id @default(cuid())
+    itinerary   Itinerary @relation(fields: [itineraryId], references: [id])
+    itineraryId String
+    value       String
+}
+
+model CompanionRequestInterest {
+    id                 String           @id @default(cuid())
+    companionRequest   CompanionRequest @relation(fields: [companionRequestId], references: [id])
+    companionRequestId String
+    value              String
+}

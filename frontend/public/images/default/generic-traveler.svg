@@ -1,0 +1,10 @@
+<!-- This is a simple SVG placeholder for traveler profile images -->
+<svg width="400" height="225" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="225" fill="#f0f4f8"/>
+  <rect x="0" y="0" width="400" height="225" fill="none" stroke="#cbd5e0" stroke-width="2"/>
+  <circle cx="200" cy="90" r="50" fill="#ffffff" stroke="#a0aec0" stroke-width="2"/>
+  <circle cx="200" cy="75" r="15" fill="#a0aec0"/>
+  <path d="M160,160 Q200,130 240,160" stroke="#a0aec0" stroke-width="4" fill="none"/>
+  <rect x="135" y="170" width="130" height="25" rx="5" fill="#ffffff" stroke="#a0aec0" stroke-width="1"/>
+  <text x="200" y="187" font-family="Arial" font-size="12" text-anchor="middle" fill="#4a5568">Traveler Profile</text>
+</svg>

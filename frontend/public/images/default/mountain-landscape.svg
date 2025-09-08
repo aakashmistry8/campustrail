@@ -1,0 +1,9 @@
+<!-- This is a simple SVG placeholder for itinerary images -->
+<svg width="400" height="225" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="225" fill="#f8f9fa"/>
+  <rect x="0" y="0" width="400" height="225" fill="none" stroke="#dee2e6" stroke-width="2"/>
+  <line x1="0" y1="0" x2="400" y2="225" stroke="#dee2e6" stroke-width="2"/>
+  <line x1="400" y1="0" x2="0" y2="225" stroke="#dee2e6" stroke-width="2"/>
+  <rect x="150" y="95" width="100" height="35" rx="5" fill="#ffffff" stroke="#adb5bd" stroke-width="1"/>
+  <text x="200" y="117" font-family="Arial" font-size="12" text-anchor="middle" fill="#6c757d">Mountain Image</text>
+</svg>
